@@ -4,7 +4,12 @@ import Registrition from "./pages/Registration/Registration";
 import Login from "./pages/Login/Login";
 import ForgotPage from "./Components/ForgotPage/ForgotPage";
 import { ToastContainer } from "react-toastify";
-import Home from "./pages/Home/Home";
+import Home from "./pages/Home/HomeDesign/Home";
+import RootLayOut from "./RootLayOut/RootLayOut";
+import { Children } from "react";
+import Navbar from "./Components/Navbar/Navbar";
+import Message from "./pages/Message/Message";
+import Settings from "./pages/Settings/Settings";
 
 function App() {
   const router = createBrowserRouter([
@@ -21,8 +26,22 @@ function App() {
       element: <ForgotPage />,
     },
     {
-      path: "/home",
-      element: <Home />,
+      path: "/",
+      element: <RootLayOut />,
+      children: [
+        {
+          path: "home",
+          element: <Home />,
+        },
+        {
+          path: "message",
+          element: <Message/>
+        },
+        {
+          path: "settings",
+          element: <Settings/>
+        }
+      ],
     },
   ]);
 

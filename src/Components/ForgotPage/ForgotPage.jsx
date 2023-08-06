@@ -1,9 +1,23 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 const ForgotPage = () => {
+  const [forgotPass, setForgotPass] = useState()
+  const auth = getAuth()
+  const navigate = useNavigate()
 
-    const handleSubmit = ()=>{
+    const handleSubmit = (event)=>{
+      event.preventDefault()
+      const form = event.target;
+    const email = form.email.value;
+
+    sendPasswordResetEmail(auth, email)
+    .then(()=>{
+      console.log("Email geche");
+      form.reset()
+      navigate('/home')
+    })
         
     }
 
@@ -30,6 +44,7 @@ const ForgotPage = () => {
 
 
                 <button
+
                   type="submit"
                   className="w-full text-white bg-orange-400 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
                 >

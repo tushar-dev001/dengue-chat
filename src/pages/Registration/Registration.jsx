@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+import { activeUser } from "../../Slices/UserSlices";
 
 const initialState = {
   name: "",
@@ -18,6 +25,7 @@ const Registration = () => {
 
   const auth = getAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const handleSubmit = (event) => {
     // const {name, email, password} = values
@@ -44,36 +52,42 @@ const Registration = () => {
       return;
     }
 
-    let pattern =
-      /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/ ||
-      !pattern.test(password);
+    // let pattern =
+    //   /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/ ||
+    //   !pattern.test(password);
+
+    // if (!password || !pattern.test(password))
 
     if (!password) {
       setValues({
         ...values,
-        error: "Enter Your Valid Password",
+        error: "Enter a valid Password",
       });
       return;
     }
     setValues({
       error: "",
     });
-
     // form.reset()
 
     setLoader(true);
     createUserWithEmailAndPassword(auth, email, password).then((user) => {
       console.log(user);
-      sendEmailVerification(auth.currentUser)
-  .then(() => {
-    console.log(auth.currentUser);
-  });
+      sendEmailVerification(auth.currentUser).then(() => {
+        console.log(auth.currentUser);
+      });
       toast("Please Check Your Email and verify your mail!");
-      // setTimeout(() => {
-      //   navigate("/login");
-      // }, 3000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     });
   };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      navigate("/home");
+    }
+  });
 
   return (
     <div>

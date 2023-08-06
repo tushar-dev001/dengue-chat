@@ -2,12 +2,16 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail
   
 } from "firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { activeUser } from "../../Slices/UserSlices";
 
 const initialState = {
   email: "",
@@ -23,6 +27,10 @@ const Login = () => {
   const navigate = useNavigate();
   const notify = () => toast();
   const provider = new GoogleAuthProvider();
+  const dispatch = useDispatch()
+
+  const userTotalInfo = useSelector(state => state.userData.userInfo)
+
 
   const handleSubmit = (event) => {
     // const {name, email, password} = values
@@ -59,11 +67,13 @@ const Login = () => {
     // form.reset()
 
     setLoader(true);
-    signInWithEmailAndPassword(auth, email, password).then((user) => {
-      console.log(user);
+    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+      console.log(userCredential.user);
+      dispatch(activeUser(userCredential.user))
+      localStorage.setItem('userTotalInfo', JSON.stringify(userCredential.user))
       toast("Login Successfully!");
       setTimeout(() => {
-        navigate("/home");
+        navigate("/");
       }, 3000);
     });
   };
@@ -78,6 +88,8 @@ const Login = () => {
           }, 3000);
     })
   }
+
+ 
 
   return (
     <div>
