@@ -73,7 +73,7 @@ const Login = () => {
       localStorage.setItem('userTotalInfo', JSON.stringify(userCredential.user))
       toast("Login Successfully!");
       setTimeout(() => {
-        navigate("/");
+        navigate("/home");
       }, 3000);
     });
   };

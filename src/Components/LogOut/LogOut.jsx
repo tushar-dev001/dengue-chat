@@ -19,7 +19,7 @@ const LogOut = () => {
       toast("Logout Successfully!");
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 1000);
     });
     console.log("clisk");
   };

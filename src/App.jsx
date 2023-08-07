@@ -10,6 +10,8 @@ import { Children } from "react";
 import Navbar from "./Components/Navbar/Navbar";
 import Message from "./pages/Message/Message";
 import Settings from "./pages/Settings/Settings";
+import Profile from "./pages/Profile/Profile";
+import DarkMode from "./Components/DarkMode/DarkMode";
 
 function App() {
   const router = createBrowserRouter([
@@ -25,6 +27,7 @@ function App() {
       path: "/forgot",
       element: <ForgotPage />,
     },
+    
     {
       path: "/",
       element: <RootLayOut />,
@@ -32,6 +35,12 @@ function App() {
         {
           path: "home",
           element: <Home />,
+          children: [
+            {
+              path: "profile",
+              element: <Profile/>
+            },
+          ]
         },
         {
           path: "message",
@@ -40,6 +49,14 @@ function App() {
         {
           path: "settings",
           element: <Settings/>
+        },
+        {
+          path: "profile",
+          element: <Profile/>
+        },
+        {
+          path: "darkmode",
+          element: <DarkMode/>
         }
       ],
     },

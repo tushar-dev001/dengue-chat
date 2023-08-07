@@ -5,11 +5,13 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import { activeUser } from "../../Slices/UserSlices";
+import { getDatabase, ref, set } from "firebase/database";
 
 const initialState = {
   name: "",
@@ -25,7 +27,8 @@ const Registration = () => {
 
   const auth = getAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const db = getDatabase();
 
   const handleSubmit = (event) => {
     // const {name, email, password} = values
@@ -72,22 +75,32 @@ const Registration = () => {
 
     setLoader(true);
     createUserWithEmailAndPassword(auth, email, password).then((user) => {
-      console.log(user);
+      console.log(user.user.uid);
+      console.log(user.user.displayName);
+      console.log(user.user.email);
       sendEmailVerification(auth.currentUser).then(() => {
-        console.log(auth.currentUser);
+        updateProfile(auth.currentUser, {
+          displayName: name,
+        }).then(() => {
+          set(ref(db, "users/" + user.user.uid), {
+            displayName: user.user.displayName,
+            email: user.user.email,
+          }).then(() => {
+            toast("Please Check Your Email and verify your mail!");
+            setTimeout(() => {
+              navigate("/login");
+            }, 3000);
+          });
+        });
       });
-      toast("Please Check Your Email and verify your mail!");
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
     });
   };
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      navigate("/home");
-    }
-  });
+  // onAuthStateChanged(auth, (user) => {
+  //   if (user) {
+  //     navigate("/home");
+  //   }
+  // });
 
   return (
     <div>

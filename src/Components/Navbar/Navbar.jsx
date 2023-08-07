@@ -166,7 +166,7 @@ const Navbar = () => {
                 <Link to="/settings">settings</Link>
               </li>
               <li>
-                <Link to="/darkMode">Dark Mode</Link>
+                <Link to="/darkmode">Dark Mode</Link>
               </li>
               <li>
                 <Link>

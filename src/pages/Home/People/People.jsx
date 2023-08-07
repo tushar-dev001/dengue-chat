@@ -1,7 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import profile from "../../../assets/p2.png"
+import { getDatabase, ref, onValue, push, set } from "firebase/database";
+import { useSelector } from 'react-redux';
+
 
 const People = () => {
+  const [userList, setUserList] = useState([])
+  const db = getDatabase();
+  const userTotalInfo = useSelector(state => state.userData.userInfo)
+
+
+  useEffect(()=>{
+    const userRef = ref(db, 'users');
+onValue(userRef, (snapshot) => {
+  let arr = []
+  snapshot.forEach(item=>{
+    if(userTotalInfo.uid !== item.key)
+    arr.push({...item.val(), reqId: item.key})
+  })
+  setUserList(arr)
+});
+  },[])
+
+
+  const handleFriendRequest =(friendRequest)=>{
+    console.log(friendRequest);
+    set(push(ref(db, 'friendRequest')), {
+      senderName: userTotalInfo.displayName,
+      senderId: userTotalInfo.uid,
+      receverName: friendRequest.displayName,
+      receverId: friendRequest.reqId
+    });
+
+  }
+
+
   return (
     <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
       <div className="flex justify-between px-4 pt-4">
@@ -31,7 +64,7 @@ const People = () => {
               type="search"
               id="default-search"
               className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search Mockups, Logos..."
+              placeholder="Search Members..."
             />
 
             <button
@@ -45,117 +78,27 @@ const People = () => {
       </div>
 
     {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
+    {userList.map((user)=>(
+      <>
+        <div className="flex justify-between px-5 mt-5 border-b pb-2">
         <div className="flex items-center space-x-4">
           <img src={profile} alt="profile" />
 
           <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
+            <div>{user.displayName}</div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
+              {user.email}
             </div>
           </div>
         </div>
         <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
+        <button onClick={()=>handleFriendRequest(user)} type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Add</button>
 
         </div>
       </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
+      </>
+    ))}
+      
       {/* People end */}
 
     </div>

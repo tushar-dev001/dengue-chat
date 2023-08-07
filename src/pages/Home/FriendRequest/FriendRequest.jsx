@@ -1,11 +1,31 @@
-import React from 'react'
-import profile from "../../../assets/p2.png"
+import React, { useEffect, useState } from "react";
+import profile from "../../../assets/p2.png";
+import { getDatabase, onValue, ref } from "firebase/database";
+import { useSelector } from "react-redux";
 
 const FriendRequest = () => {
+  const [friendRequest, setFriendRequest] = useState([]);
+
+  const db = getDatabase();
+  const userTotalInfo = useSelector((state) => state.userData.userInfo);
+
+  useEffect(() => {
+    const starCountRef = ref(db, "friendRequest/");
+    onValue(starCountRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+        if (userTotalInfo.uid === item.val().receverId) {
+          arr.push(item.val());
+        }
+      });
+      setFriendRequest(arr);
+    });
+  }, []);
+
   return (
-<div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
+    <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
       <div className="flex justify-between px-4 pt-4">
-        <h3 className="text-lg font-bold">Block</h3>
+        <h3 className="text-lg font-bold">Friend Request</h3>
       </div>
       <div className="px-7">
         <form>
@@ -44,121 +64,35 @@ const FriendRequest = () => {
         </form>
       </div>
 
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
+      {/* People start */}
+      {friendRequest.map((friendReq) => (
+        <>
+          <div className="flex justify-between px-5 mt-5 border-b">
+            <div className="flex items-center space-x-4">
+              <img src={profile} alt="profile" />
 
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
+              <div className="font-medium dark:text-white">
+                <div>{friendReq.senderName}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Joined in August 2014
+                </div>
+              </div>
+            </div>
+            <div>
+              <button
+                type="button"
+                className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+              >
+                Join
+              </button>
             </div>
           </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
+        </>
+      ))}
 
-        </div>
-      </div>
       {/* People end */}
+    </div>
+  );
+};
 
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5 border-b">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    {/* People start */}
-      <div className="flex justify-between px-5 mt-5">
-        <div className="flex items-center space-x-4">
-          <img src={profile} alt="profile" />
-
-          <div className="font-medium dark:text-white">
-            <div>Jese Leos</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Joined in August 2014
-            </div>
-          </div>
-        </div>
-        <div>
-        <button type="button" className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Join</button>
-
-        </div>
-      </div>
-      {/* People end */}
-
-    </div>   )
-}
-
-export default FriendRequest
+export default FriendRequest;
