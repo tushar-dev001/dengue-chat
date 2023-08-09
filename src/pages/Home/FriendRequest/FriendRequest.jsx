@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import profile from "../../../assets/p2.png";
 import { getDatabase, onValue, push, ref, remove, set } from "firebase/database";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const FriendRequest = () => {
   const [friendRequest, setFriendRequest] = useState([]);
 
   const db = getDatabase();
+  const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ const FriendRequest = () => {
 
   const handleReject =(friendReject)=>{
     remove(ref(db, 'friendRequest/' + friendReject.reqId)).then(()=>{
-      console.log("delete successfully");
+      toast("Friend Request Rejected!");
     })
   }
 
@@ -33,7 +35,7 @@ const FriendRequest = () => {
       ...friendAccept,
     }).then(()=>{
       remove(ref(db, 'friendRequest/' + friendAccept.reqId)).then(()=>{
-        console.log("delete successfully");
+        toast("Request Accept Successfully!");
       })
     })
   }

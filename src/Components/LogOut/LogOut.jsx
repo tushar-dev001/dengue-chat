@@ -21,7 +21,6 @@ const LogOut = () => {
         navigate("/login");
       }, 1000);
     });
-    console.log("clisk");
   };
 
   useEffect(() => {

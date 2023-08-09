@@ -9,6 +9,8 @@ import {
   remove,
 } from "firebase/database";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
 
 const People = () => {
   const [userList, setUserList] = useState([]);
@@ -16,6 +18,7 @@ const People = () => {
   const [friends, setFriends] = useState([]);
   const [block, setBlock] = useState([]);
   const db = getDatabase();
+  const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
   useEffect(() => {
@@ -73,13 +76,15 @@ const People = () => {
       senderId: userTotalInfo.uid,
       receverName: friendRequest.displayName,
       receverId: friendRequest.reqId,
-    });
+    }).then(()=>{
+      toast("Friend Request Successfully!");
+    })
   };
 
   const handleCancel = (requestCancel) => {
     console.log(requestCancel);
     remove(ref(db, 'friendRequest/')).then(()=>{
-      console.log("Request Cancel");
+      toast("Friend Request Cancel Successfully!");
     })
     
   };

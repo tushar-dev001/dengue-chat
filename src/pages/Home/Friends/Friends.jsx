@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import profile from "../../../assets/p2.png";
 import { getDatabase, onValue, push, ref, remove, set } from "firebase/database";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Friends = () => {
   const [friends, setFriends] = useState([]);
 
   const db = getDatabase();
+  const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
   useEffect(() => {
@@ -28,7 +30,9 @@ const Friends = () => {
 
   const handleUnfriend =(unfriend)=>{
     console.log(unfriend);
-    remove(ref(db, 'friends/' + unfriend.unfriendId))
+    remove(ref(db, 'friends/' + unfriend.unfriendId)).then(()=>{
+      toast("Unfriend Successfully!");
+    })
   }
 
   const handleBlock =(block)=>{
@@ -40,6 +44,8 @@ const Friends = () => {
         blockRecevidName: block.receverName 
       }).then(()=>{
         remove(ref(db, 'friends/' + block.unfriendId))
+      }).then(()=>{
+        toast("Block Successfully!");
       })
     }else{
       set(push(ref(db, 'block')), {
@@ -49,6 +55,8 @@ const Friends = () => {
         blockRecevidName:block.senderName,  
       }).then(()=>{
         remove(ref(db, 'friends/' + block.unfriendId))
+      }).then(()=>{
+        toast("Block Successfully!");
       })
     }
     

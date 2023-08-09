@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import profile from "../../../assets/p1.png";
 import { getDatabase, onValue, push, ref, set } from "firebase/database";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Group = () => {
-  const [groups, setGroups] = useState([]);
   const [groupDetails, setGroupDetails] = useState([]);
+  const [groupMemberList, setGroupMemberList] = useState([]);
+
   const db = getDatabase();
+  const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
   useEffect(() => {
@@ -22,20 +25,22 @@ const Group = () => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   const starCountRef = ref(db, "posts");
-  //   onValue(starCountRef, (snapshot) => {
-  //     let arr = [];
-  //     snapshot.forEach((item) => {
-  //       console.log(item.val());
-  //       arr.push(item.val());
-  //     });
-  //     setGroups(arr);
-  //   });
-  // }, []);
+  
+  useEffect(() => {
+    const groupsRef = ref(db, "groupsRequest");
+    onValue(groupsRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+      if(item.val().userId === userTotalInfo.uid){
+        arr.push(item.val().groupInfoId);
+      }
+      });
+      setGroupMemberList(arr);
+    });
+  }, []);
+
 
   const handleJoinGroup = (info) => {
-    console.log(info);
     set(push(ref(db, "groupsRequest")), {
       groupAdminId: info.groupAdminId,
       groupAdminName: info.groupAdminName,
@@ -44,9 +49,11 @@ const Group = () => {
       userId: userTotalInfo.uid,
       userName: userTotalInfo.displayName,
     }).then(() => {
-      console.log("Group created");
+      toast("Group Created Successfully!");
     });
   };
+
+ 
 
   return (
     <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
@@ -114,6 +121,16 @@ const Group = () => {
                 </div>
               </div>
               <div>
+                {groupMemberList.indexOf(group.groupId) !== -1 
+                ?
+                  <button
+                  onClick={() => handleJoinGroup(group)}
+                  type="button"
+                  className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                >
+                  Request Send
+                </button>
+                :
                 <button
                   onClick={() => handleJoinGroup(group)}
                   type="button"
@@ -121,6 +138,8 @@ const Group = () => {
                 >
                   Join
                 </button>
+                }
+                
               </div>
             </div>
           </>

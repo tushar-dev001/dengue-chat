@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import profile from "../../../assets/p1.png";
 import { getDatabase, onValue, ref, remove } from "firebase/database";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
 
 const BlockList = () => {
   const [block, setBlock] = useState([])
 
   const db = getDatabase()
+  const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
 
@@ -23,7 +26,9 @@ const BlockList = () => {
 
   const handleUnblock =(unblock)=>{
     console.log(unblock);
-    remove(ref(db, "block/" + unblock.blockId))
+    remove(ref(db, "block/" + unblock.blockId)).then(()=>{
+      toast("Unblock Successfully!");
+    })
   }
 
 
