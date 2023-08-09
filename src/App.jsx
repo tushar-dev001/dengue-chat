@@ -35,12 +35,6 @@ function App() {
         {
           path: "home",
           element: <Home />,
-          children: [
-            {
-              path: "profile",
-              element: <Profile/>
-            },
-          ]
         },
         {
           path: "message",

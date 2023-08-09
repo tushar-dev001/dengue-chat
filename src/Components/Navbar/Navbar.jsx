@@ -1,10 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsFillChatHeartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { Link } from "react-router-dom";
 import LogOut from "../LogOut/LogOut";
+import { getDatabase, onValue, push, ref, set } from "firebase/database";
+import { useSelector } from "react-redux";
+
+
+const groupData ={
+  groupName: "",
+  groupTagline: ""
+}
 
 const Navbar = () => {
+  const [groupInfo, setGroupInfo] = useState(groupData)
+
+  const db = getDatabase()
+  const userTotalInfo = useSelector((state) => state.userData.userInfo);
+
+
+  const handleGroupInputChange =(e)=>{
+    setGroupInfo({
+      ...groupInfo,
+      [e.target.name] : e.target.value
+    })
+  }
+
+  const handleCreateGroup =()=>{
+    set(push(ref(db,"groups")),{
+      groupInfoName: groupInfo.groupName,
+      groupInfoTagline: groupInfo.groupTagline,
+      groupAdminName: userTotalInfo.displayName,
+      groupAdminId: userTotalInfo.uid
+    }).then(()=>{
+      console.log("Group created");
+    })
+
+    setGroupInfo({
+      groupName: "",
+      groupTagline: ""
+    })
+  }
+
+  // useEffect(()=>{
+  //   const groupsRef = ref(db, "groups/");
+  //   onValue(groupsRef, (snapshot) => {
+  //     let arr = [];
+  //     snapshot.forEach((item) => {
+  //       if (userTotalInfo.uid !== item.val().groupAdminId) {
+  //         arr.push({ ...item.val(), groupId: item.key });
+  //       }
+  //     });
+  //     setGroupDetails(arr);
+  //     })
+  // },[])
+
   return (
     <div>
       <div className="fixed z-50 w-full h-16 max-w-7xl -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 ">
@@ -79,6 +129,9 @@ const Navbar = () => {
                         Group Name
                       </label>
                       <input
+                      onChange={handleGroupInputChange}
+                      value={groupInfo.groupName}
+                      name= "groupName"
                         type="text"
                         id="default-input"
                         placeholder="Enter Your Group Name"
@@ -90,6 +143,9 @@ const Navbar = () => {
                         Group Tagline
                       </label>
                       <input
+                      onChange={handleGroupInputChange}
+                      value={groupInfo.groupTagline}
+                      name= "groupTagline"
                         type="text"
                         id="default-input"
                         placeholder="Enter Your Group Tagline"
@@ -97,7 +153,7 @@ const Navbar = () => {
                       />
                     </div>
                   </p>
-                  <button className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-200 via-red-300 to-yellow-200 group-hover:from-red-200 group-hover:via-red-300 group-hover:to-yellow-200 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400">
+                  <button onClick={handleCreateGroup} className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-200 via-red-300 to-yellow-200 group-hover:from-red-200 group-hover:via-red-300 group-hover:to-yellow-200 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400">
                     <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                       CREATE
                     </span>
