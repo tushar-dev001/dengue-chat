@@ -3,11 +3,15 @@ import profile from "../../../assets/p2.png";
 import { getDatabase, onValue, push, ref, remove, set } from "firebase/database";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { activeChat } from "../../../Slices/ActioveChatSlice/ActiveChatSlice";
+import { useDispatch } from "react-redux";
 
-const Friends = () => {
+
+const Friends = ({button}) => {
   const [friends, setFriends] = useState([]);
 
   const db = getDatabase();
+  const dispatch = useDispatch()
   const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
@@ -60,6 +64,30 @@ const Friends = () => {
       })
     }
     
+  }
+
+
+  const handleMessage=(msg)=>{
+    console.log(msg.receverName);
+    if (msg.senderId == userTotalInfo.uid) {
+      console.log(msg.receverId);
+      dispatch(
+        activeChat({
+          type: "singlemsg",
+          name: msg.receverName,
+          id: msg.receverId,
+        })
+      );
+    } else {
+      console.log(msg.senderId);
+      dispatch(
+        activeChat({
+          type: "singlemsg",
+          name: msg.senderName,
+          id: msg.senderId,
+        })
+      );
+    }
   }
 
 
@@ -126,7 +154,21 @@ const Friends = () => {
                 </div>
               </div>
             </div>
+            
+            {button == "msg"
+            ?
             <div>
+              <button
+              onClick={()=>handleMessage(friend)}
+                type="button"
+                className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+              >
+                Message
+              </button>
+            </div>
+            :
+            <>
+              <div>
               <button
               onClick={()=>handleUnfriend(friend)}
                 type="button"
@@ -144,6 +186,8 @@ const Friends = () => {
                 Block
               </button>
             </div>
+            </>
+            }
           </div>
         </>
       ))

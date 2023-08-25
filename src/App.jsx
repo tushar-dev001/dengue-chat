@@ -6,12 +6,10 @@ import ForgotPage from "./Components/ForgotPage/ForgotPage";
 import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home/HomeDesign/Home";
 import RootLayOut from "./RootLayOut/RootLayOut";
-import { Children } from "react";
-import Navbar from "./Components/Navbar/Navbar";
-import Message from "./pages/Message/Message";
 import Settings from "./pages/Settings/Settings";
 import Profile from "./pages/Profile/Profile";
 import DarkMode from "./Components/DarkMode/DarkMode";
+import Message from "./pages/Message/MessageDesign/Message";
 
 function App() {
   const router = createBrowserRouter([

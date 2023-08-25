@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import profile from "../../../assets/p1.png";
-import { getDatabase, onValue, push, ref, set } from "firebase/database";
+import {
+  getDatabase,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+} from "firebase/database";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const Group = () => {
   const [groupDetails, setGroupDetails] = useState([]);
   const [groupMemberList, setGroupMemberList] = useState([]);
+  const [groupMember, setGroupMember] = useState([]);
 
   const db = getDatabase();
   const notify = () => toast();
@@ -25,20 +33,33 @@ const Group = () => {
     });
   }, []);
 
-  
   useEffect(() => {
     const groupsRef = ref(db, "groupsRequest");
     onValue(groupsRef, (snapshot) => {
       let arr = [];
       snapshot.forEach((item) => {
-      if(item.val().userId === userTotalInfo.uid){
-        arr.push(item.val().groupInfoId);
-      }
+        if (item.val().userId === userTotalInfo.uid) {
+          arr.push(item.val().groupInfoId);
+        }
       });
       setGroupMemberList(arr);
     });
   }, []);
 
+  // useEffect(() => {
+  //   const groupsRef = ref(db, "groupMembers");
+  //   onValue(groupsRef, (snapshot) => {
+  //     let arr = [];
+  //     snapshot.forEach((item) => {
+  //       console.log(item.val());
+  //     if(item.val().userId === userTotalInfo.uid){
+  //       arr.push(item.val());
+  //     }
+  //     });
+  //     setGroupMember(arr);
+  //   });
+  //   console.log(groupMember);
+  // }, []);
 
   const handleJoinGroup = (info) => {
     set(push(ref(db, "groupsRequest")), {
@@ -49,11 +70,29 @@ const Group = () => {
       userId: userTotalInfo.uid,
       userName: userTotalInfo.displayName,
     }).then(() => {
-      toast("Group Created Successfully!");
+      toast("Group join request Successfully!");
     });
   };
 
- 
+  const handleCancelGroup = (cancelGroup) => {
+    console.log(cancelGroup);
+    const groupsRef = ref(db, "groupsRequest");
+    let gid = "";
+    onValue(groupsRef, (snapshot) => {
+      snapshot.forEach((item) => {
+        console.log(item.val());
+        if (
+          item.val().userId === userTotalInfo.uid &&
+          cancelGroup.groupInfoId === item.val().groupInfoId
+        ) {
+          gid = item.key;
+        }
+      });
+    });
+    remove(ref(db, "groupsRequest/" + gid)).then(() => {
+      toast("Group join request Cancel Successfully!");
+    });
+  };
 
   return (
     <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
@@ -116,30 +155,30 @@ const Group = () => {
                   <h4>{group.groupInfoName}</h4>
                   <p>{group.groupInfoTagline}</p>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Joined in August 2014
+                    {group.groupAdminName}
                   </div>
                 </div>
               </div>
               <div>
-                {groupMemberList.indexOf(group.groupId) !== -1 
-                ?
+                {groupMemberList.indexOf(group.groupId) !== -1 ? (
+                  <>
+                    <button
+                      onClick={() => handleCancelGroup(group)}
+                      type="button"
+                      className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
                   <button
-                  onClick={() => handleJoinGroup(group)}
-                  type="button"
-                  className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                >
-                  Request Send
-                </button>
-                :
-                <button
-                  onClick={() => handleJoinGroup(group)}
-                  type="button"
-                  className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                >
-                  Join
-                </button>
-                }
-                
+                    onClick={() => handleJoinGroup(group)}
+                    type="button"
+                    className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    Join
+                  </button>
+                )}
               </div>
             </div>
           </>
