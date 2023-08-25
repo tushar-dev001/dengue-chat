@@ -9,86 +9,94 @@ import {
   set,
 } from "firebase/database";
 import { useSelector } from "react-redux";
-import profileImg from '../../../assets/p2.png'
+import profileImg from "../../../assets/p2.png";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { activeChat } from "../../../Slices/ActioveChatSlice/ActiveChatSlice";
 
 const MessageGroup = () => {
+  const [myGroups, setMyGroups] = useState([]);
+  const [myGroupsRequest, setMyGroupsRequest] = useState([]);
+  const [myGroupMembers, setMyGroupMembers] = useState([]);
 
-    const [myGroups, setMyGroups] = useState([]);
-    const [myGroupsRequest, setMyGroupsRequest] = useState([]);
-    const [myGroupMembers, setMyGroupMembers] = useState([]);
-  
-    const db = getDatabase();
-    const dispatch = useDispatch()
-    const notify = () => toast();
-    const userTotalInfo = useSelector((state) => state.userData.userInfo);
-  
-    useEffect(() => {
-      const groupsRef = ref(db, "groups/");
-      onValue(groupsRef, (snapshot) => {
-        let arr = [];
-        snapshot.forEach((item) => {
-          if (userTotalInfo.uid === item.val().groupAdminId) {
-            arr.push({ ...item.val(), groupInfoId: item.key });
-          }
-        });
-        setMyGroups(arr);
-      });
-    }, []);
-  
-    const handleRejectGroup = (rejectGroup) => {
-      console.log(rejectGroup.rejectGroupId);
-      remove(ref(db, "groupsRequest/" + rejectGroup.rejectGroupId)).then(()=>{
-        toast("Group Request Cancel Successfully!");
-      })
-    };
-  
-    const handleGroupAccept = (acceptGroup) => {
-      set(push(ref(db, "groupMembers")), {
-        ...acceptGroup,
-      }).then(() => {
-        remove(ref(db, "groupsRequest")).then(() => {
-          toast("Group Request Accept Successfully!");
-        });
-      });
-    };
-  
-    const handleMembers = (members)=>{
-      window.member_list.showModal()
-      const groupsRef = ref(db, "groupMembers");
-      onValue(groupsRef, (snapshot) => {
-        let arr = [];
-        snapshot.forEach((item) => {
-          // console.log(item.val());
-          if (
-            userTotalInfo.uid === item.val().groupAdminId &&
-            item.val().groupInfoId === members.groupInfoId
-          ) {
-            arr.push({ ...item.val(), membersId: item.key });
-          }
-        });
-        setMyGroupMembers(arr);
-      });
-    }
-  
-    const handleGroupRemove =(groupRemove)=>{
-      console.log(groupRemove);
-      remove(ref(db, "groupMembers/" + groupRemove.membersId )).then(()=>{
-        toast("Member Remove Successfully!");
-      })
-    }
+  const db = getDatabase();
+  const dispatch = useDispatch();
+  const notify = () => toast();
+  const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
-    const handleMsg =(msg)=>{
-      dispatch(
-        activeChat({
-          type: "groupMsg",
-          name: msg.groupInfoName,
-          id: msg.groupInfoId,
-        })
-      )
-    }
+  useEffect(() => {
+    const groupsRef = ref(db, "groups/");
+    onValue(groupsRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+        if (userTotalInfo.uid === item.val().groupAdminId) {
+          arr.push({ ...item.val(), groupInfoId: item.key });
+        }
+      });
+      setMyGroups(arr);
+    });
+  }, []);
+
+  const handleRejectGroup = (rejectGroup) => {
+    console.log(rejectGroup.rejectGroupId);
+    remove(ref(db, "groupsRequest/" + rejectGroup.rejectGroupId)).then(() => {
+      toast("Group Request Cancel Successfully!");
+    });
+  };
+
+  const handleGroupAccept = (acceptGroup) => {
+    set(push(ref(db, "groupMembers")), {
+      ...acceptGroup,
+    }).then(() => {
+      remove(ref(db, "groupsRequest")).then(() => {
+        toast("Group Request Accept Successfully!");
+      });
+    });
+  };
+
+  const handleMembers = (members) => {
+    window.member_list.showModal();
+    const groupsRef = ref(db, "groupMembers");
+    onValue(groupsRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+        // console.log(item.val());
+        if (
+          userTotalInfo.uid === item.val().groupAdminId &&
+          item.val().groupInfoId === members.groupInfoId
+        ) {
+          arr.push({ ...item.val(), membersId: item.key });
+        }
+      });
+      setMyGroupMembers(arr);
+    });
+  };
+
+  const handleGroupRemove = (groupRemove) => {
+    console.log(groupRemove);
+    remove(ref(db, "groupMembers/" + groupRemove.membersId)).then(() => {
+      toast("Member Remove Successfully!");
+    });
+  };
+
+  const handleMsg = (msg) => {
+    dispatch(
+      activeChat({
+        type: "groupMsg",
+        name: msg.groupInfoName,
+        id: msg.groupInfoId,
+      })
+    );
+
+    localStorage.setItem(
+      "activeChat",
+      JSON.stringify({
+        type: "groupMsg",
+        name: msg.groupInfoName,
+        id: msg.groupInfoId,
+      })
+    );
+  };
 
   return (
     <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
@@ -105,13 +113,13 @@ const MessageGroup = () => {
                   <h4>{myGroup.groupInfoName}</h4>
                   <p>{myGroup.groupInfoTagline}</p>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {myGroup.groupAdminName}
+                    {myGroup.groupAdminName}
                   </div>
                 </div>
               </div>
               <div>
                 <button
-                onClick={()=>handleMsg(myGroup)}
+                  onClick={() => handleMsg(myGroup)}
                   type="button"
                   className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                 >
@@ -254,7 +262,7 @@ const MessageGroup = () => {
       </dialog>
       {/* Member list modal end */}
     </div>
-  )
-}
+  );
+};
 
-export default MessageGroup
+export default MessageGroup;

@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import profile from "../../../assets/p2.png";
-import { getDatabase, onValue, push, ref, remove, set } from "firebase/database";
+import {
+  getDatabase,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+} from "firebase/database";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { activeChat } from "../../../Slices/ActioveChatSlice/ActiveChatSlice";
 import { useDispatch } from "react-redux";
 
-
-const Friends = ({button}) => {
+const Friends = ({ button }) => {
   const [friends, setFriends] = useState([]);
 
   const db = getDatabase();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const notify = () => toast();
   const userTotalInfo = useSelector((state) => state.userData.userInfo);
 
@@ -24,50 +30,89 @@ const Friends = ({button}) => {
           item.val().senderId === userTotalInfo.uid ||
           item.val().receverId === userTotalInfo.uid
         ) {
-          arr.push({...item.val(), unfriendId:item.key});
+          arr.push({ ...item.val(), unfriendId: item.key });
         }
       });
       setFriends(arr);
+
+      if (arr[0].senderId == userTotalInfo.uid) {
+        dispatch(
+          activeChat({
+            type: "singlemsg",
+            name: arr[0].receverName,
+            id: arr[0].receverId,
+          })
+        );
+        localStorage.setItem(
+          "activeChat",
+          JSON.stringify(
+            activeChat({
+              type: "singleMsg",
+              name: arr[0].receverName,
+              id: arr[0].receverId,
+            })
+          )
+        );
+      }else{
+        dispatch(
+          activeChat({
+            type: "singlemsg",
+            name: arr[0].senderName,
+            id: arr[0].senderId,
+          })
+        );
+        localStorage.setItem(
+          "activeChat",
+          JSON.stringify(
+            activeChat({
+              type: "singleMsg",
+              name: arr[0].senderName,
+              id: arr[0].senderId,
+            })
+          )
+        );
+      }
     });
   }, []);
 
-
-  const handleUnfriend =(unfriend)=>{
+  const handleUnfriend = (unfriend) => {
     console.log(unfriend);
-    remove(ref(db, 'friends/' + unfriend.unfriendId)).then(()=>{
+    remove(ref(db, "friends/" + unfriend.unfriendId)).then(() => {
       toast("Unfriend Successfully!");
-    })
-  }
+    });
+  };
 
-  const handleBlock =(block)=>{
-    if(userTotalInfo.uid === block.senderId){
-      set(push(ref(db, 'block')), {
+  const handleBlock = (block) => {
+    if (userTotalInfo.uid === block.senderId) {
+      set(push(ref(db, "block")), {
         blockSenderId: block.senderId,
         blockSenderName: block.senderName,
         blockRecevidId: block.receverId,
-        blockRecevidName: block.receverName 
-      }).then(()=>{
-        remove(ref(db, 'friends/' + block.unfriendId))
-      }).then(()=>{
-        toast("Block Successfully!");
+        blockRecevidName: block.receverName,
       })
-    }else{
-      set(push(ref(db, 'block')), {
+        .then(() => {
+          remove(ref(db, "friends/" + block.unfriendId));
+        })
+        .then(() => {
+          toast("Block Successfully!");
+        });
+    } else {
+      set(push(ref(db, "block")), {
         blockSenderId: block.receverId,
         blockSenderName: block.receverName,
-        blockRecevidId:block.senderId, 
-        blockRecevidName:block.senderName,  
-      }).then(()=>{
-        remove(ref(db, 'friends/' + block.unfriendId))
-      }).then(()=>{
-        toast("Block Successfully!");
+        blockRecevidId: block.senderId,
+        blockRecevidName: block.senderName,
       })
+        .then(() => {
+          remove(ref(db, "friends/" + block.unfriendId));
+        })
+        .then(() => {
+          toast("Block Successfully!");
+        });
     }
-    
-  }
+  };
 
-
-  const handleMessage=(msg)=>{
+  const handleMessage = (msg) => {
     console.log(msg.receverName);
     if (msg.senderId == userTotalInfo.uid) {
       console.log(msg.receverId);
@@ -78,6 +123,16 @@ const Friends = ({button}) => {
           id: msg.receverId,
         })
       );
+      localStorage.setItem(
+        "activeChat",
+        JSON.stringify(
+          activeChat({
+            type: "singleMsg",
+            name: msg.receverName,
+            id: msg.receverId,
+          })
+        )
+      );
     } else {
       console.log(msg.senderId);
       dispatch(
@@ -87,9 +142,18 @@ const Friends = ({button}) => {
           id: msg.senderId,
         })
       );
+      localStorage.setItem(
+        "activeChat",
+        JSON.stringify(
+          activeChat({
+            type: "singleMsg",
+            name: msg.receverName,
+            id: msg.receverId,
+          })
+        )
+      );
     }
-  }
-
+  };
 
   return (
     <div className="w-full h-96 bg-gray-700 shadow-lg rounded-lg mt-4 overflow-auto">
@@ -134,65 +198,62 @@ const Friends = ({button}) => {
       </div>
 
       {/* People start */}
-      {friends.length > 0 
-      ?
-      friends.map((friend) => (
-        <>
-          <div className="flex justify-between px-5 mt-5 border-b">
-            <div className="flex items-center space-x-4">
-              <img src={profile} alt="profile" />
+      {friends.length > 0 ? (
+        friends.map((friend) => (
+          <>
+            <div className="flex justify-between px-5 mt-5 border-b">
+              <div className="flex items-center space-x-4">
+                <img src={profile} alt="profile" />
 
-              <div className="font-medium dark:text-white">
-                {friend.receverId === userTotalInfo.uid
-                ?
-                <h3>{friend.senderName}</h3>
-                :
-                <h3>{friend.receverName}</h3>
-                }
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Joined in August 2014
+                <div className="font-medium dark:text-white">
+                  {friend.receverId === userTotalInfo.uid ? (
+                    <h3>{friend.senderName}</h3>
+                  ) : (
+                    <h3>{friend.receverName}</h3>
+                  )}
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Joined in August 2014
+                  </div>
                 </div>
               </div>
+
+              {button == "msg" ? (
+                <div>
+                  <button
+                    onClick={() => handleMessage(friend)}
+                    type="button"
+                    className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    Message
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <button
+                      onClick={() => handleUnfriend(friend)}
+                      type="button"
+                      className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    >
+                      Unfriend
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => handleBlock(friend)}
+                      type="button"
+                      className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    >
+                      Block
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
-            
-            {button == "msg"
-            ?
-            <div>
-              <button
-              onClick={()=>handleMessage(friend)}
-                type="button"
-                className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-              >
-                Message
-              </button>
-            </div>
-            :
-            <>
-              <div>
-              <button
-              onClick={()=>handleUnfriend(friend)}
-                type="button"
-                className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-              >
-                Unfriend
-              </button>
-            </div>
-            <div>
-              <button
-              onClick={()=>handleBlock(friend)}
-                type="button"
-                className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-              >
-                Block
-              </button>
-            </div>
-            </>
-            }
-          </div>
-        </>
-      ))
-      :
-      <div
+          </>
+        ))
+      ) : (
+        <div
           className="flex items-center p-4 mb-4 mt-3 mx-7 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
           role="alert"
         >
@@ -210,8 +271,7 @@ const Friends = ({button}) => {
             <span className="font-medium">No Friends Available!</span>
           </div>
         </div>
-      }
-
+      )}
     </div>
   );
 };

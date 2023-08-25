@@ -6,6 +6,8 @@ import registrationimg from "../../../assets/cover.jpg"
 import ModalImage from "react-modal-image";
 import Button from '@mui/material/Button';
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getDatabase, onValue, push, ref, set } from "firebase/database";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -37,9 +39,66 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 const MessageBox = () => {
+  const [msg, setMsg] = useState("")
+  const [text, setText] = useState("")
 
+  const userTotalInfo = useSelector((state) => state.userData.userInfo);
     const activeChat = useSelector((state) => state.activeChat.activeChat);
-    console.log(activeChat);
+   
+    const db = getDatabase()
+
+
+    const handleMsgSend =()=>{
+      // console.log(userTotalInfo);
+      console.log(activeChat.type);
+      // console.log(msg);
+      // const data ={
+      //   senderName: userTotalInfo.displayName,
+      //   senderId: userTotalInfo.uid,
+      //   receverName: activeChat.name,
+      //   receverId: activeChat.id,
+      //   msg: msg
+      // }
+
+      if(activeChat.type === 'singlemsg'){
+
+        set(push(ref(db, 'singleMsg')),{
+          senderName: userTotalInfo.displayName,
+          senderId: userTotalInfo.uid,
+          receverName: activeChat.name,
+          receverId: activeChat.id,
+          msg: msg
+        }).then(()=>{
+          console.log("data send");
+        })
+      }else{
+        set(push(ref(db, 'groupMsg')),{
+          senderName: userTotalInfo.displayName,
+          senderId: userTotalInfo.uid,
+          receverName: activeChat.name,
+          receverId: activeChat.id,
+          msg: msg
+        }).then(()=>{
+          console.log("data send");
+        })
+      }
+
+    }
+
+    // useEffect(() => {
+    //   const singleMsgRef = ref(db, "singleMsg");
+    //   onValue(singleMsgRef, (snapshot) => {
+    //     // let arr = [];
+    //     snapshot.forEach((item) => {
+    //       console.log(item.val());
+    //       // arr.push(item.val().blockRecevidId + item.val().blockSenderId
+    //       // );
+    //     });
+    //     setText();
+    //   });
+    // }, []);
+
+
 
   return (
     <div className='chatbox'>
@@ -156,16 +215,16 @@ const MessageBox = () => {
              <p className='time'>Today, 2:01pm</p>   
         </div>
         <div className='msg'>
-            <p className='sendmsg'>Hello SM</p>
+            <p className='sendmsg'>{text}</p>
             <p className='time'>Today, 2:01pm</p> 
         </div>
         
     </div>
     <div className='msgcontainer'>
        <div className='msgwritecon'>
-        <input className='msgwrite'/>
+        <input onChange={(e)=>setMsg(e.target.value)} className='msgwrite'/>
        </div>
-       <Button variant="contained">Send</Button>
+       <Button onClick={handleMsgSend} variant="contained">Send</Button>
     </div>
 
 
